@@ -2,9 +2,10 @@ extends Area2D
 
 @export var max_deploy_points = 4
 var current_deploy_points = 0
-var reinforcement_penalty = 1
 
 var units = []
+var units_to_lock = []
+var locked_units = []
 
 var margin_X: int = 3
 var padding_X: int = 10
@@ -13,11 +14,15 @@ var unit_width = 0
 var max_displayed: int = 4
 var display_index: int = 0
 
+var first_deployment: bool = true
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	SignalBus.turn_started.connect(self._on_turn_started)
 	SignalBus.unit_dropped.connect(self._on_unit_dropped.bind())
-	
+	SignalBus.unit_played.connect(self._on_unit_played.bind())
+	SignalBus.unit_retreated.connect(self._on_unit_retreated.bind())
+		
 	add_deploy_points(max_deploy_points)
 	
 	for unit in UnitList.get_children():
@@ -55,34 +60,33 @@ func refresh_units_display():
 		units[display_index + i].position.x = i * (unit_width + margin_X) + padding_X
 		units[display_index + i].position.y = padding_Y
 
-func play_unit(unit, slot):
-	if !unit.is_on_board():
-		if unit.deployment_cost > current_deploy_points:
-			unit.set_activity_timer(unit.deployment_cost - current_deploy_points + reinforcement_penalty)
-			reinforcement_penalty += 1
-		add_deploy_points(-unit.deployment_cost)
-		unit.set_on_board()
-		
+func _on_unit_dropped(unit, dropped_on):
+	if dropped_on != null:
+		if is_ancestor_of(unit) && dropped_on.has_method("play_unit") && unit.deployment_cost < current_deploy_points:
+			dropped_on.play_unit(unit)
+			unit.set_activity_timer(unit.deployment_cost if !first_deployment else 0)
+		if dropped_on == self:
+			unit.set_retreat_timer(unit.deployment_cost if locked_units.has(unit) else 0)
+
+func _on_unit_played(unit, slot):
+	add_deploy_points(-unit.deployment_cost)
 	units.erase(unit)
-	slot.socket_unit(unit)
+	units_to_lock.append(unit)
 	refresh_units_display()
 
-func retreat_unit(unit):
-	add_unit(unit)
-	add_deploy_points(unit.deployment_cost - unit.activity_timer)
-	reinforcement_penalty = max(1, reinforcement_penalty - 1)
-	unit.retreat()
-
-func _on_unit_dropped(unit, dropped_on):
-	if !unit.is_in_play() && dropped_on != null:
-		if dropped_on.has_method("get_socketed_unit") && !dropped_on.get_socketed_unit():
-			play_unit(unit, dropped_on)
-		if dropped_on == self:
-			retreat_unit(unit)
+func _on_unit_retreated(unit):
+	if locked_units.has(unit):
+		unit.reparent(UnitList)
+	else:
+		add_unit(unit)
+		add_deploy_points(unit.deployment_cost)
 
 func _on_turn_started():
-	reinforcement_penalty = 0
-
+	add_deploy_points(1)
+	first_deployment = false
+	locked_units.append_array(units_to_lock)
+	units_to_lock = []
+	
 func _on_next_button_pressed():
 	add_display_index(1)
 

@@ -1,15 +1,15 @@
 extends Node2D
 
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	update_timer(0)
 
-func _on_unit_activity_timer_set(value):
+func init_ui(unit):
+	pass
+
+func update_timer(value):
 	if !value:
-		$Label.hide()
 		$InactiveFilter.hide()
 	else:
-		$Label.show()
-		$Label.text = str(value)
 		$InactiveFilter.show()
+		$InactiveFilter/Timer.text = str(value)

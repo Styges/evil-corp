@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://do7cudkhqty4j"]
+[gd_scene load_steps=8 format=3 uid="uid://do7cudkhqty4j"]
 
 [ext_resource type="Script" path="res://Scripts/Unit.gd" id="1_0uedf"]
 [ext_resource type="Texture2D" uid="uid://6fmf6y5gpeyd" path="res://Sprites/icon.svg" id="2_lseq5"]
@@ -10,6 +10,9 @@ size = Vector2(127.5, 128)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_710he"]
 radius = 3.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_7np20"]
+font_size = 60
 
 [node name="Unit" type="Area2D"]
 z_index = 5
@@ -45,18 +48,21 @@ debug_color = Color(1, 0.00392157, 0.0745098, 0.419608)
 [node name="UnitUI" type="Node2D" parent="."]
 script = ExtResource("4_fm5r1")
 
-[node name="Label" type="Label" parent="UnitUI"]
-offset_left = 28.0
-offset_top = 24.0
-offset_right = 104.0
-offset_bottom = 98.0
-
 [node name="InactiveFilter" type="Polygon2D" parent="UnitUI"]
 position = Vector2(64, 64)
 color = Color(0.164706, 0.164706, 0.164706, 0.501961)
 polygon = PackedVector2Array(-64, -64, 64, -64, 64, 64, -64, 64)
 
-[connection signal="activity_timer_set" from="." to="UnitUI" method="_on_unit_activity_timer_set"]
+[node name="Timer" type="Label" parent="UnitUI/InactiveFilter"]
+offset_left = -38.0
+offset_top = -46.0
+offset_right = 38.0
+offset_bottom = 40.0
+text = "1"
+label_settings = SubResource("LabelSettings_7np20")
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [connection signal="mouse_entered" from="." to="DragLine" method="_on_unit_mouse_entered"]
 [connection signal="mouse_exited" from="." to="DragLine" method="_on_unit_mouse_exited"]
 [connection signal="area_entered" from="DragLine/DropArea" to="DragLine" method="_on_drop_area_entered"]

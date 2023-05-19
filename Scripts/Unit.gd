@@ -1,39 +1,30 @@
 extends Area2D
 
-signal activity_timer_set(value: int)
-
 @export var deployment_cost = 1
-var activity_timer
+@export var move_points = 1
 
-var in_play:bool = false
-var on_board:bool = false
+var activity_timer = 0
+var retreat_timer = 0
 
 func _ready():
 	SignalBus.turn_started.connect(self._on_turn_started)
-	set_activity_timer(0)
-	
-func is_in_play():
-	return in_play
-	
-func is_on_board():
-	return on_board
-	
-func set_on_board():
-	on_board = true
-
-func retreat():
-	in_play = false
-	on_board = false
-	set_activity_timer(0)
 
 func set_activity_timer(timer: int):
 	activity_timer = timer
-	activity_timer_set.emit(timer)
+	$UnitUI.update_timer(activity_timer)
+	
+func set_retreat_timer(timer: int):
+	retreat_timer = timer
+	$UnitUI.update_timer(retreat_timer)
+	
+	if (retreat_timer == 0): 
+		set_activity_timer(0)
+		SignalBus.emit_signal("unit_retreated", self)
 	
 func _on_turn_started():
-	if !in_play && on_board:
-		in_play = true
-	if activity_timer:
+	if retreat_timer:
+		set_retreat_timer(retreat_timer - 1)
+	elif activity_timer:
 		set_activity_timer(activity_timer - 1)
 	
 func _notification(what):
