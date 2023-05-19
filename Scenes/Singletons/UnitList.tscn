@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://cqefgq3dfevhw"]
+
+[ext_resource type="PackedScene" uid="uid://do7cudkhqty4j" path="res://Scenes/Prefabs/Unit.tscn" id="1_5rv5f"]
+
+[node name="UnitList" type="Node2D"]
+visible = false
+
+[node name="Unit" parent="." instance=ExtResource("1_5rv5f")]
+
+[node name="Unit2" parent="." instance=ExtResource("1_5rv5f")]
+modulate = Color(0.788235, 0, 0.8, 1)
+
+[node name="Unit3" parent="." instance=ExtResource("1_5rv5f")]
+modulate = Color(0.65098, 0.639216, 0, 1)
+
+[node name="Unit4" parent="." instance=ExtResource("1_5rv5f")]
+
+[node name="Unit5" parent="." instance=ExtResource("1_5rv5f")]
+
+[node name="Unit6" parent="." instance=ExtResource("1_5rv5f")]

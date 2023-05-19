@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://cikneafypm3k"]
+
+[ext_resource type="Script" path="res://Scripts/GridSlot.gd" id="1_afy7f"]
+[ext_resource type="Texture2D" uid="uid://bs572o7x26hy4" path="res://Sprites/CombatGridSlot.png" id="2_ywb2d"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_enn8p"]
+size = Vector2(128, 128)
+
+[node name="GridSlot" type="Area2D"]
+script = ExtResource("1_afy7f")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_ywb2d")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(64, 64)
+shape = SubResource("RectangleShape2D_enn8p")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]

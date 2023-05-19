@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://chduj51idawa6"]
+
+[ext_resource type="Script" path="res://Scripts/Combat.gd" id="1_qllwn"]
+[ext_resource type="PackedScene" uid="uid://cy8x42iv35obh" path="res://Scenes/Board.tscn" id="1_x0byl"]
+[ext_resource type="PackedScene" uid="uid://iuc5xa0j8c6r" path="res://Scenes/CombatGrid.tscn" id="2_d0wea"]
+
+[node name="Combat" type="Node2D"]
+script = ExtResource("1_qllwn")
+
+[node name="CombatGrid" parent="." instance=ExtResource("2_d0wea")]
+position = Vector2(-2, -1)
+
+[node name="Board" parent="." instance=ExtResource("1_x0byl")]
+position = Vector2(527, 450)
+
+[node name="NextButton" type="Button" parent="."]
+offset_left = 936.0
+offset_top = 239.0
+offset_right = 1067.0
+offset_bottom = 277.0
+text = "Next"
+
+[connection signal="pressed" from="NextButton" to="." method="_on_next_button_pressed"]
