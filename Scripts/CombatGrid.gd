@@ -9,9 +9,12 @@ extends Node2D
 
 var slots = []
 var unit_positions = {}
+var temporary_unit_positions = {}
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	SignalBus.turn_started.connect(self._on_turn_started)
+	
 	SignalBus.unit_dragged.connect(self._on_unit_dragged.bind())
 	SignalBus.unit_dropped.connect(self._on_unit_dropped.bind())
 
@@ -37,7 +40,26 @@ func is_unit_on_grid(unit):
 	return unit_positions.keys().has(unit)
 	
 func get_available_move_slots(unit):
-	return [slots[unit_positions[unit].x + 1][unit_positions[unit].y]]
+	var available_moves = []
+	
+	for column_index in columns_count:
+		for row_index in rows_count:
+			if (unit_positions[unit] - Vector2(column_index, row_index)).length() <= 2:
+				available_moves.append(slots[column_index][row_index])
+					
+	return available_moves
+	
+func get_slot_position(slot):
+	for column_index in columns_count:
+		for row_index in rows_count:
+			if slot == slots[column_index][row_index]:
+				return Vector2(column_index, row_index)
+
+func _on_turn_started():
+	for key in temporary_unit_positions:
+		unit_positions[key] = temporary_unit_positions[key]
+		
+	temporary_unit_positions = {}
 
 func _on_unit_dragged(unit):
 	if is_unit_on_grid(unit):
@@ -49,19 +71,15 @@ func _on_unit_dragged(unit):
 				slot.set_available(true)
 
 func _on_unit_dropped(unit, dropped_on):
-	if is_unit_on_grid(unit) && is_ancestor_of(dropped_on):
+	if is_unit_on_grid(unit) && dropped_on && dropped_on.has_method("move_unit"):
 		dropped_on.move_unit(unit)
 
 	for row in slots:
 		for slot in row:
 			slot.set_available(false)
-		
+
 func _on_unit_played(unit, slot):
-	for column_index in columns_count:
-		for row_index in rows_count:
-			if slot == slots[column_index][row_index]:
-				unit_positions[unit] = Vector2(column_index, row_index)
-				break
+	temporary_unit_positions[unit] = get_slot_position(slot)
 
 func _on_unit_retreated(unit):
 	unit_positions.erase(unit)

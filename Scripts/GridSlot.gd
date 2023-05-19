@@ -19,7 +19,7 @@ func set_available(status: bool):
 	$CollisionShape2D.set_deferred("disabled", !status)
 
 func has_socketed_unit():
-	return get_child(-1) if get_child(-1).has_method("is_locked") else null
+	return get_child(-1) if get_child(-1).has_method("set_activity_timer") else null
 
 func play_unit(unit):
 	if !has_socketed_unit():

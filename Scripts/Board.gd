@@ -19,6 +19,7 @@ var first_deployment: bool = true
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	SignalBus.turn_started.connect(self._on_turn_started)
+	
 	SignalBus.unit_dropped.connect(self._on_unit_dropped.bind())
 	SignalBus.unit_played.connect(self._on_unit_played.bind())
 	SignalBus.unit_retreated.connect(self._on_unit_retreated.bind())
@@ -62,17 +63,18 @@ func refresh_units_display():
 
 func _on_unit_dropped(unit, dropped_on):
 	if dropped_on != null:
-		if is_ancestor_of(unit) && dropped_on.has_method("play_unit") && unit.deployment_cost < current_deploy_points:
+		if !locked_units.has(unit) && dropped_on.has_method("play_unit") && unit.deployment_cost <= current_deploy_points:
 			dropped_on.play_unit(unit)
 			unit.set_activity_timer(unit.deployment_cost if !first_deployment else 0)
 		if dropped_on == self:
 			unit.set_retreat_timer(unit.deployment_cost if locked_units.has(unit) else 0)
 
 func _on_unit_played(unit, slot):
-	add_deploy_points(-unit.deployment_cost)
-	units.erase(unit)
-	units_to_lock.append(unit)
-	refresh_units_display()
+	if !units_to_lock.has(unit):
+		add_deploy_points(-unit.deployment_cost)
+		units.erase(unit)
+		units_to_lock.append(unit)
+		refresh_units_display()
 
 func _on_unit_retreated(unit):
 	if locked_units.has(unit):
@@ -80,6 +82,7 @@ func _on_unit_retreated(unit):
 	else:
 		add_unit(unit)
 		add_deploy_points(unit.deployment_cost)
+		units_to_lock.erase(unit)
 
 func _on_turn_started():
 	add_deploy_points(1)
